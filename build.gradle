@@ -1,0 +1,158 @@
+plugins {
+    id 'org.springframework.boot' version '2.7.18'
+    id 'io.spring.dependency-management' version '1.1.3'
+    id 'java'
+    id 'jvm-test-suite'
+    id 'jacoco'
+    // Sonar
+    id "org.sonarqube" version "2.8"
+    //Dependency Check
+    id "org.owasp.dependencycheck" version "8.2.1"
+}
+
+group = 'com.rfsc'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    //maven { url 'https://nexus.ci.rfsc.cl/nexus/content/repositories/central/' }
+    mavenCentral()
+}
+
+ext {
+    set('springCloudVersion', "2021.0.8")
+}
+
+dependencies {
+
+    // Spring
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    implementation 'org.springframework.cloud:spring-cloud-sleuth-zipkin'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+    implementation group: 'org.springframework.security', name: 'spring-security-rsa', version: '1.1.1'
+    implementation 'org.springframework.security:spring-security-crypto'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.springframework.data:spring-data-mongodb'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+    implementation 'org.springframework.boot:spring-boot-starter-graphql'
+    implementation 'org.springframework:spring-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+
+
+
+
+
+
+    //implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    //implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    //implementation 'org.springframework.boot:spring-boot-starter-data-cassandra'
+    //implementation 'org.springframework.kafka:spring-kafka'
+    //implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    //Other
+    implementation group: 'org.yaml', name: 'snakeyaml', version: '2.0'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: '2.20.0'
+    implementation 'org.apache.logging.log4j:log4j-api:2.20.0'
+
+    //dependency check
+    implementation 'org.yaml:snakeyaml:2.0'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: '2.17.1'
+    implementation 'org.apache.logging.log4j:log4j-api:2.20.0'
+    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
+    testImplementation 'io.projectreactor:reactor-test'
+
+
+
+
+
+
+
+    // Lombok
+    annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.projectlombok:lombok'
+
+    //Data Base
+    runtimeOnly 'org.postgresql:postgresql:42.5.4'
+
+    // Logstash
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.3'
+
+    // Swagger
+    implementation 'org.springdoc:springdoc-openapi-webmvc-core:1.6.15'
+
+    // ArchUnit
+    testImplementation 'com.tngtech.archunit:archunit:1.0.1'
+    testImplementation 'com.tngtech.archunit:archunit-junit5:1.0.1'
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+bootRun {
+    jvmArgs = ["-Djava.security.egd=file:/dev/./urandom", "-Dspring.profiles.active=local", "-Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true"]
+}
+
+// Sonar settings
+sonarqube {
+    properties {
+        property 'sonar.projectKey', 'ms-pedidos-core'
+        property 'sonar.host.url', 'http://sonar.rfsc.cl:9000/sonarqube'
+        property 'sonar.projectName', 'ms-pedidos-core' // Nombre del repo
+        property 'sonar.scm.disabled', 'true'
+        property 'sonar.coverage.jacoco.xmlReportPaths', "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
+        property "sonar.dependencyCheck.xmlReportPath", "${buildDir}/reports/dependency-check-report.xml"
+        property "sonar.dependencyCheck.htmlReportPath", "${buildDir}/reports/dependency-check-report.html"
+        property "sonar.dependencyCheck.jsonReportPath", "${buildDir}/reports/dependency-check-report.json"
+        properties["sonar.sources"] += "build.gradle"
+
+        // Para Pull Request
+        if (project.hasProperty("pullRequestID")) {
+            // sonar-stash
+            property "sonar.analysis.mode", "issues"
+            property "sonar.stash.notification", "true"
+            property "sonar.stash.project", "ms-pedidos-core"
+            property "sonar.stash.repository", "ms-pedidos-core"
+            property "sonar.stash.pullrequest.id", "${pullRequestID}"
+            property "sonar.stash.password", "jenkins123456"
+        }
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+    }
+}
+
+jar.enabled = false

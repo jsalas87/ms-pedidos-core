@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-pedidos-core
+  namespace: oapi-qa
+spec:
+  selector:
+    matchLabels:
+      app: ms-pedidos-core
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: ms-pedidos-core
+    spec:
+      containers:
+        - name: ms-pedidos-core
+          image: IMAGE_PATTERN
+          imagePullPolicy: Always
+          env:
+            - name: "SPRING_PROFILES_ACTIVE"
+              value: "qa"
+            - name: "LOGSTASH_URL"
+              value: "logstash.elk-qa.svc.cluster.local:5000"
+            - name: "CLOUD_CONFIG_HOST"
+              value: "http://business-api-cloud-config-server.cloud-config.svc.cluster.local:8888"
+          ports:
+            - name: http
+              containerPort: 8080
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 200m
+            limits:
+              memory: 1Gi
+              cpu: '1'
+          livenessProbe:
+            httpGet:
+              port: http
+              path: /health
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            failureThreshold: 20
+          readinessProbe:
+            httpGet:
+              port: http
+              path: /health
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            failureThreshold: 20
+      imagePullSecrets:
+        - name: regcred

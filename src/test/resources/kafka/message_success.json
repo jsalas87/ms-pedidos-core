@@ -1,0 +1,1 @@
+{"id" : "263dd6ff-15cc-4ca6-8efb-758989cb28a4", "data": {"id":1, "id_cliente":1, "detalle_pedido": [{"id_producto":1, "cantidad": 10},{"id_producto":2, "cantidad": 12}], "fecha": "2024-07-16", "metodo_pago" : "CREDITO"}}

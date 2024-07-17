@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: ms-pedidos-core
+  namespace: oapi-qa
+spec:
+  selector:
+    app: ms-pedidos-core
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
