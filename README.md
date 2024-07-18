@@ -65,7 +65,9 @@ Puede realizarse de 2 maneras:
 * Para obtener datos del cliente se consulta Api Grahp. Puede hacerse de 2 maneras.
 * * Levantando en el ambiente local el proyecto Nest GraphQL de la APi disponible en https://github.com/jsalas87/ms-clientes-graphql/tree/main y colocando aqui en ms-pedidos-core el boostrap.properties url.client=http://localhost:3000/graphql
 * * Via mock, colocando aqui en ms-pedidos-core el boostrap.properties url.client=https://7e2394ab-b3cc-4618-8bd0-f742e116326c.mock.pstmn.io
-* Para obtener los datos de productos puede hacerse via mock, colocando aqui en ms-pedidos-core el boostrap.properties url.product=https://387240b3-8996-4444-b6a7-a297ef998a32.mock.pstmn.io/negocio/apigov1.0/productos?ids={ids}
+* Para obtener los datos de productos se consulta Api Rest. Puede hacerse de 2 maneras.
+* * Via mock, colocando aqui en ms-pedidos-core el boostrap.properties url.product=https://387240b3-8996-4444-b6a7-a297ef998a32.mock.pstmn.io/negocio/apigov1.0/productos?ids={ids}
+* * Levantando en el ambiente local el proyecto Api Go disponible en https://github.com/jsalas87/api-go-productos y colocando aqui en ms-pedidos-core el boostrap.properties url.product=http://localhost:8000/productos?ids={ids}
 
 ### Base de Datos
 Se utiliza MongoDB. Para ejecución local, debe estar instalada y configurada. Se debe colocar aqui en ms-pedidos-core los boostrap.properties spring.data.mongodb.uri=mongodb://localhost:27017/sales y spring.data.mongodb.database=sales
