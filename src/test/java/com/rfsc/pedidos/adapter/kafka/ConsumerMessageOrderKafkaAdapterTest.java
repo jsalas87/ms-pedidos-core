@@ -21,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataM
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -39,7 +40,7 @@ import java.util.Optional;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@EmbeddedKafka(partitions = 1, topics = ConsumerMessageOrderKafkaAdapterTest.ORDER_KAFKA_TOPIC)
+@EmbeddedKafka(partitions = 1, topics = ConsumerMessageOrderKafkaAdapterTest.ORDER_KAFKA_TOPIC, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"})
 @DirtiesContext
 @AutoConfigureDataMongo
 public class ConsumerMessageOrderKafkaAdapterTest {
@@ -49,8 +50,8 @@ public class ConsumerMessageOrderKafkaAdapterTest {
     private MongodExecutable mongodExecutable;
     private MongodProcess mongodProcess;
 
-    @ClassRule
-    public static EmbeddedKafkaRule kafkaEmbedded = new EmbeddedKafkaRule(1, true, ORDER_KAFKA_TOPIC);
+    @Autowired
+    private EmbeddedKafkaBroker embeddedKafkaBroker;
 
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -79,6 +80,9 @@ public class ConsumerMessageOrderKafkaAdapterTest {
 
         mongodExecutable = starter.prepare(mongodConfig);
         mongodProcess = mongodExecutable.start();
+
+        System.setProperty("spring.kafka.bootstrap-servers", embeddedKafkaBroker.getBrokersAsString());
+        Thread.sleep(5000);
     }
 
     @After
@@ -96,7 +100,7 @@ public class ConsumerMessageOrderKafkaAdapterTest {
         var fr = new FileReader(file);
         var message = FileCopyUtils.copyToString(fr);
         kafkaTemplate.send(ORDER_KAFKA_TOPIC, message).get();
-        Thread.sleep(3000);
+        Thread.sleep(8000);
         Mono<OrderModel> savedOrder = orderMongoRepository.findById(1);
         OrderModel order = savedOrder.block(Duration.ofSeconds(2L));
         assertTrue(Optional.ofNullable(order).isPresent());
